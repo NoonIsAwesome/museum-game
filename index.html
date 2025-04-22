@@ -75,8 +75,10 @@ function create() {
   eKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
 
   artworks.forEach((art) => {
-    this.add.image(art.x, art.y, art.frameKey).setDisplaySize(art.frameWidth, art.frameHeight);
+    // 加畫作（先）
     this.add.image(art.x, art.y, art.artKey).setDisplaySize(art.artWidth, art.artHeight);
+    // 加畫框（後）
+    this.add.image(art.x, art.y, art.frameKey).setDisplaySize(art.frameWidth, art.frameHeight);
 
     let zone = this.add.zone(art.x, art.y, art.artWidth, art.artHeight);
     this.physics.world.enable(zone);
