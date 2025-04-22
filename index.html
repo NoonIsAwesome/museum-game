@@ -36,20 +36,21 @@ const game = new Phaser.Game(config);
 let player;
 let cursors;
 let hintText;
-
 const artworks = [
   { frameKey: 'frame_16x9', artKey: 'art1', x: 300, y: 300, frameWidth: 340, frameHeight: 200, artWidth: 320, artHeight: 180 },
   { frameKey: 'frame_9x16', artKey: 'art2', x: 600, y: 300, frameWidth: 200, frameHeight: 340, artWidth: 180, artHeight: 320 },
   { frameKey: 'frame_16x9', artKey: 'art3', x: 900, y: 300, frameWidth: 340, frameHeight: 200, artWidth: 320, artHeight: 180 }
 ];
-
 let interactZones = [];
 
 function preload() {
   this.load.image('background', 'assets/background.png');
-  this.load.spritesheet('player', 'assets/player.png', { frameWidth: 32, frameHeight: 48 });
   this.load.image('frame_16x9', 'assets/frame_16x9.png');
   this.load.image('frame_9x16', 'assets/frame_9x16.png');
+
+  this.load.image('player_idle', 'assets/player/player_frame_1.png');
+  this.load.image('player_walk1', 'assets/player/player_frame_2.png');
+  this.load.image('player_walk2', 'assets/player/player_frame_3.png');
 
   this.load.image('art1', 'assets/artworks/art1.png');
   this.load.image('art2', 'assets/artworks/art2.png');
@@ -59,32 +60,10 @@ function preload() {
 function create() {
   this.add.image(576, 384, 'background');
 
-  player = this.physics.add.sprite(576, 600, 'player');
+  player = this.physics.add.sprite(576, 600, 'player_idle');
   player.setCollideWorldBounds(true);
 
   cursors = this.input.keyboard.createCursorKeys();
-
-  // 設定角色動畫
-  this.anims.create({
-    key: 'walk-left',
-    frames: [{ key: 'player', frame: 1 }],
-    frameRate: 10,
-    repeat: -1
-  });
-
-  this.anims.create({
-    key: 'walk-right',
-    frames: [{ key: 'player', frame: 2 }],
-    frameRate: 10,
-    repeat: -1
-  });
-
-  this.anims.create({
-    key: 'idle',
-    frames: [{ key: 'player', frame: 0 }],
-    frameRate: 10,
-    repeat: -1
-  });
 
   // 加畫框
   artworks.forEach((art) => {
@@ -106,24 +85,32 @@ function create() {
 }
 
 function update() {
-  player.setVelocity(0);
+  let moving = false;
 
   if (cursors.left.isDown) {
     player.setVelocityX(-160);
-    player.anims.play('walk-left', true);
+    player.setTexture('player_walk1');
+    moving = true;
   } else if (cursors.right.isDown) {
     player.setVelocityX(160);
-    player.anims.play('walk-right', true);
+    player.setTexture('player_walk2');
+    moving = true;
+  } else {
+    player.setVelocityX(0);
   }
 
   if (cursors.up.isDown) {
     player.setVelocityY(-160);
+    moving = true;
   } else if (cursors.down.isDown) {
     player.setVelocityY(160);
+    moving = true;
+  } else {
+    player.setVelocityY(0);
   }
 
-  if (!cursors.left.isDown && !cursors.right.isDown && !cursors.up.isDown && !cursors.down.isDown) {
-    player.anims.play('idle', true);
+  if (!moving) {
+    player.setTexture('player_idle');
   }
 
   let nearArtwork = false;
