@@ -111,3 +111,25 @@ function update() {
   }
 
   if (!moving) {
+    player.setTexture('player_idle');
+  }
+
+  let nearArtwork = false;
+  interactZones.forEach((zone) => {
+    if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), zone.getBounds())) {
+      hintText.setText('按E鍵查看畫作');
+      nearArtwork = true;
+
+      if (this.input.keyboard.checkDown(cursors.up, 500)) {
+        alert('你正在欣賞畫作：' + zone.artKey);
+      }
+    }
+  });
+
+  if (!nearArtwork) {
+    hintText.setText('');
+  }
+}
+</script>
+</body>
+</html>
