@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>虛擬博物館遊戲</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+<script>
+const config = {
+  type: Phaser.AUTO,
+  width: 1152,
+  height: 768,
+  physics: {
+    default: 'arcade',
+    arcade: {
+      gravity: { y: 0 },
+      debug: false
+    }
+  },
+  scene: {
+    preload: preload,
+    create: create,
+    update: update
+  }
+};
+
+const game = new Phaser.Game(config);
+
+let player;
+let cursors;
+let hintText;
+
+const artworks = [
+  { frameKey: 'frame_16x9', artKey: 'art1', x: 300, y: 300, frameWidth: 340, frameHeight: 200, artWidth: 320, artHeight: 180 },
+  { frameKey: 'frame_9x16', artKey: 'art2', x: 600, y: 300, frameWidth: 200, frameHeight: 340, artWidth: 180, artHeight: 320 },
+  { frameKey: 'frame_16x9', artKey: 'art3', x: 900, y: 300, frameWidth: 340, frameHeight: 200, artWidth: 320, artHeight: 180 }
+];
+
+let interactZones = [];
+
+function preload() {
+  this.load.image('background', 'assets/background.png');
+  this.load.spritesheet('player', 'assets/player.png', { frameWidth: 32, frameHeight: 48 });
+  this.load.image('frame_16x9', 'assets/frame_16x9.png');
+  this.load.image('frame_9x16', 'assets/frame_9x16.png');
+
+  this.load.image('art1', 'assets/artworks/art1.png');
+  this.load.image('art2', 'assets/artworks/art2.png');
+  this.load.image('art3', 'assets/artworks/art3.png');
+}
+
+function create() {
+  this.add.image(576, 384, 'background');
+
+  player = this.physics.add.sprite(576, 600, 'player');
+  player.setCollideWorldBounds(true);
+
+  cursors = this.input.keyboard.createCursorKeys();
+
+  // 設定角色動畫
+  this.anims.create({
+    key: 'walk-left',
+    frames: [{ key: 'player', frame: 1 }],
+    frameRate: 10,
+    repeat: -1
+  });
+
+  this.anims.create({
+    key: 'walk-right',
+    frames: [{ key: 'player', frame: 2 }],
+    frameRate: 10,
+    repeat: -1
+  });
+
+  this.anims.create({
+    key: 'idle',
+    frames: [{ key: 'player', frame: 0 }],
+    frameRate: 10,
+    repeat: -1
+  });
+
+  // 加畫框
+  artworks.forEach((art) => {
+    this.add.image(art.x, art.y, art.frameKey).setDisplaySize(art.frameWidth, art.frameHeight);
+  });
+
+  // 加畫作
+  artworks.forEach((art) => {
+    this.add.image(art.x, art.y, art.artKey).setDisplaySize(art.artWidth, art.artHeight);
+
+    let zone = this.add.zone(art.x, art.y, art.artWidth, art.artHeight);
+    this.physics.world.enable(zone);
+    zone.body.setAllowGravity(false);
+    zone.artKey = art.artKey;
+    interactZones.push(zone);
+  });
+
+  hintText = this.add.text(10, 700, '', { font: '24px Arial', fill: '#ffffff' });
+}
+
+function update() {
+  player.setVelocity(0);
+
+  if (cursors.left.isDown) {
+    player.setVelocityX(-160);
+    player.anims.play('walk-left', true);
+  } else if (cursors.right.isDown) {
+    player.setVelocityX(160);
+    player.anims.play('walk-right', true);
+  }
+
+  if (cursors.up.isDown) {
+    player.setVelocityY(-160);
+  } else if (cursors.down.isDown) {
+    player.setVelocityY(160);
+  }
+
+  if (!cursors.left.isDown && !cursors.right.isDown && !cursors.up.isDown && !cursors.down.isDown) {
+    player.anims.play('idle', true);
+  }
+
+  let nearArtwork = false;
+  interactZones.forEach((zone) => {
+    if (Phaser.Geom.Intersects.RectangleToRectangle(player.getBounds(), zone.getBounds())) {
+      hintText.setText('按E鍵查看畫作');
+      nearArtwork = true;
+
+      if (Phaser.Input.Keyboard.JustDown(cursors.space) || Phaser.Input.Keyboard.JustDown(cursors.up)) {
+        alert('你正在欣賞畫作：' + zone.artKey);
+      }
+    }
+  });
+
+  if (!nearArtwork) {
+    hintText.setText('');
+  }
+}
+</script>
+</body>
+</html>
