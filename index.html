@@ -62,18 +62,19 @@ function create() {
 
   player = this.physics.add.sprite(576, 600, 'player_idle');
   player.setCollideWorldBounds(true);
+  player.setScale(0.5); // ✅ 把角色縮小50%
 
   cursors = this.input.keyboard.createCursorKeys();
 
-  // 加畫框
+  // 加畫框和畫作
   artworks.forEach((art) => {
+    // 先加畫框
     this.add.image(art.x, art.y, art.frameKey).setDisplaySize(art.frameWidth, art.frameHeight);
-  });
 
-  // 加畫作
-  artworks.forEach((art) => {
+    // 再加畫作（比畫框小一點）
     this.add.image(art.x, art.y, art.artKey).setDisplaySize(art.artWidth, art.artHeight);
 
+    // 互動區域
     let zone = this.add.zone(art.x, art.y, art.artWidth, art.artHeight);
     this.physics.world.enable(zone);
     zone.body.setAllowGravity(false);
