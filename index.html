@@ -37,9 +37,9 @@ let player;
 let cursors;
 let hintText;
 const artworks = [
-  { frameKey: 'frame_16x9', artKey: 'art1', x: 300, y: 300, frameWidth: 340, frameHeight: 200, artWidth: 320, artHeight: 180 },
-  { frameKey: 'frame_9x16', artKey: 'art2', x: 600, y: 300, frameWidth: 200, frameHeight: 340, artWidth: 180, artHeight: 320 },
-  { frameKey: 'frame_16x9', artKey: 'art3', x: 900, y: 300, frameWidth: 340, frameHeight: 200, artWidth: 320, artHeight: 180 }
+  { frameKey: 'frame_16x9', artKey: 'art1', x: 300, y: 300, frameWidth: 340, frameHeight: 200, artWidth: 300, artHeight: 180 },
+  { frameKey: 'frame_9x16', artKey: 'art2', x: 600, y: 300, frameWidth: 200, frameHeight: 340, artWidth: 180, artHeight: 300 },
+  { frameKey: 'frame_16x9', artKey: 'art3', x: 900, y: 300, frameWidth: 340, frameHeight: 200, artWidth: 300, artHeight: 180 }
 ];
 let interactZones = [];
 
@@ -62,19 +62,17 @@ function create() {
 
   player = this.physics.add.sprite(576, 600, 'player_idle');
   player.setCollideWorldBounds(true);
-  player.setScale(0.5); // ✅ 把角色縮小50%
+  player.setScale(0.5); // ✅ 縮小角色尺寸
 
   cursors = this.input.keyboard.createCursorKeys();
 
-  // 加畫框和畫作
+  // 加畫框與畫作
   artworks.forEach((art) => {
     // 先加畫框
     this.add.image(art.x, art.y, art.frameKey).setDisplaySize(art.frameWidth, art.frameHeight);
-
-    // 再加畫作（比畫框小一點）
+    // 再加畫作（比畫框小）
     this.add.image(art.x, art.y, art.artKey).setDisplaySize(art.artWidth, art.artHeight);
 
-    // 互動區域
     let zone = this.add.zone(art.x, art.y, art.artWidth, art.artHeight);
     this.physics.world.enable(zone);
     zone.body.setAllowGravity(false);
